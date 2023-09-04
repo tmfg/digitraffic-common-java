@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * Annotation to configure PerformanceMonitor limits.
- * If this annotation is added to non service class method
- * will it became monitored.
+ * Adding this annotation to a non-service class method
+ * will make it monitored.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD})
