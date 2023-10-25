@@ -50,4 +50,53 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <systemPropertyVariables>
+                        <junit.jupiter.extensions.autodetection.enabled>true</junit.jupiter.extensions.autodetection.enabled>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>4.9.10</version>
+                <configuration>
+                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                    <prefix>git</prefix>
+                    <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+                    <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+                    <verbose>false</verbose>
+                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <format>properties</format>
+                    <skipPoms>true</skipPoms>
+                    <injectAllReactorProjects>false</injectAllReactorProjects>
+                    <failOnNoGitDirectory>true</failOnNoGitDirectory>
+                    <failOnUnableToExtractRepoInfo>true</failOnUnableToExtractRepoInfo>
+                    <excludeProperties>
+                        <excludeProperty>git.commit.user.*</excludeProperty>
+                        <excludeProperty>git.build.user.*</excludeProperty>
+                        <excludeProperty>git.build.host</excludeProperty>
+                    </excludeProperties>
+                    <gitDescribe>
+                        <skip>false</skip>
+                        <always>true</always>
+                        <abbrev>7</abbrev>
+                        <dirty>-dirty</dirty>
+                        <match>*</match>
+                        <tags>false</tags>
+                        <forceLongFormat>false</forceLongFormat>
+                    </gitDescribe>
+                    <evaluateOnCommit>HEAD</evaluateOnCommit>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
