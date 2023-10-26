@@ -23,7 +23,7 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
-public final class TimeUtil {
+public abstract class TimeUtil {
 
 
     public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -55,7 +55,9 @@ public final class TimeUtil {
                     .toFormatter()
                     .withZone(UTC);
 
-    private TimeUtil() {}
+    protected TimeUtil() {
+        throw new AssertionError("The " + getClass().getSimpleName() + " class methods should be accessed statically");
+    }
 
     public static long millisBetween(final ZonedDateTime from, final ZonedDateTime to) {
         return millisBetween(Objects.requireNonNull(from).toInstant(), Objects.requireNonNull(to).toInstant());
@@ -289,4 +291,7 @@ public final class TimeUtil {
         return time == null ? null : time.getEpochSecond();
     }
 
+    public static Long getEpochSeconds(final ZonedDateTime time) {
+        return time == null ? null : time.toEpochSecond();
+    }
 }

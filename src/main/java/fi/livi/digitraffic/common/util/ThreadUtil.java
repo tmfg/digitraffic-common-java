@@ -14,6 +14,10 @@ public class ThreadUtil {
 
     final static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
+    protected ThreadUtil() {
+        throw new AssertionError("The " + getClass().getSimpleName() + " class methods should be accessed statically");
+    }
+
     public static void delayMs(final long delayMs) {
 
         log.debug("Start waiting for {} ms", delayMs);

@@ -3,7 +3,11 @@ package fi.livi.digitraffic.common.util;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class MathUtil {
+public abstract class MathUtil {
+
+    protected MathUtil() {
+        throw new AssertionError("The " + getClass().getSimpleName() + " class methods should be accessed statically");
+    }
 
     public static double floorToHalf(double number) {
         return Math.floor(number * 2.0) / 2.0;
