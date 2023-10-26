@@ -1,1 +1,15 @@
-target/
+*
+
+!/.gitignore
+!/pom.xml
+!/LICENSE
+!/README.md
+
+!src/
+!src/**/
+!src/**/*.java
+
+!.github/
+!.github/**/
+!.github/workflows/**/**.yml
+!.github/CODEOWNERS
