@@ -54,7 +54,7 @@ public final class AssertUtil {
         assertTrue(Math.abs(diffMillis) <= maxDiffMs, "Difference between times was " + diffMillis + " ms and allowed diff was " + maxDiffMs + " ms");
     }
 
-    public static void collectionContains(final Object objectToFind, List<?> collection) {
+    public static void collectionContains(final Object objectToFind, final List<?> collection) {
         final Optional<?> first = collection.stream().filter(e -> e.equals(objectToFind)).findFirst();
         assertTrue(first.isPresent(), "Element " + objectToFind + " not found in collection");
     }

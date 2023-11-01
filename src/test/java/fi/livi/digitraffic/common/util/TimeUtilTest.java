@@ -229,7 +229,7 @@ public final class TimeUtilTest {
         final ZonedDateTime timeAtOffset2 = ZonedDateTime.parse(DATE_STRING_OFFSET_2);
         final XMLGregorianCalendar xmlUtc = TimeUtil.toXMLGregorianCalendarAtUtc(timeAtOffset2);
         assertEquals(XML_DATE_STRING_Z, xmlUtc.toString());
-        ZonedDateTime utc = TimeUtil.toZonedDateTimeAtUtc(xmlUtc);
+        final ZonedDateTime utc = TimeUtil.toZonedDateTimeAtUtc(xmlUtc);
         assertEquals(timeAtOffset2.toEpochSecond(), utc.toEpochSecond());
     }
 
@@ -238,7 +238,7 @@ public final class TimeUtilTest {
         final Instant instant = Instant.parse(DATE_STRING_Z);
         final XMLGregorianCalendar xmlUtc = TimeUtil.toXMLGregorianCalendarAtUtc(instant);
         assertEquals(XML_DATE_STRING_Z, xmlUtc.toString());
-        ZonedDateTime utc = TimeUtil.toZonedDateTimeAtUtc(xmlUtc);
+        final ZonedDateTime utc = TimeUtil.toZonedDateTimeAtUtc(xmlUtc);
         assertEquals(instant.getEpochSecond() , utc.toEpochSecond());
     }
 

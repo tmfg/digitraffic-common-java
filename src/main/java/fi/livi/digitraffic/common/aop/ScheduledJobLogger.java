@@ -25,8 +25,8 @@ public class ScheduledJobLogger {
     /**
      * Execution start (debug level) and end (info or error level) times will be
      * logged for each method annotated with @Scheduled.
-     *
-     * Methods annotated with @NoJobLogging will not be monitored.
+     * <p>
+     * Methods annotated with {@code @NoJobLogging} will not be monitored.
      */
     @Around("@annotation(org.springframework.scheduling.annotation.Scheduled) && !@annotation(fi.livi.digitraffic.common.annotation.NoJobLogging)")
     public Object monitorScheduledJob(final ProceedingJoinPoint pjp) throws Throwable {

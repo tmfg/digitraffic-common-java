@@ -6,23 +6,23 @@ public class JobLogger {
 
     public enum JobType {
         Scheduled,
-        Quartz;
+        Quartz
     }
 
     public enum JobEndStatus {
         SUCCESS,
-        FAIL;
+        FAIL
     }
 
     public static void logJobStart(final Logger log, final JobType jobType, final String jobName) {
         log.debug("jobType={} jobName={} start", jobType.name(), jobName);
     }
 
-    public static void logJobEndStatusFail(final Logger log, final JobType jobType, final String jobName, long timeMs, final Exception lastError) {
+    public static void logJobEndStatusFail(final Logger log, final JobType jobType, final String jobName, final long timeMs, final Exception lastError) {
         log.error(formatMessage(jobType, jobName, JobEndStatus.FAIL, timeMs), lastError);
     }
 
-    public static void logJobEndStatusSuccess(final Logger log, final JobType jobType, final String jobName, long timeMs) {
+    public static void logJobEndStatusSuccess(final Logger log, final JobType jobType, final String jobName, final long timeMs) {
         log.info(formatMessage(jobType, jobName, JobEndStatus.SUCCESS, timeMs));
     }
 

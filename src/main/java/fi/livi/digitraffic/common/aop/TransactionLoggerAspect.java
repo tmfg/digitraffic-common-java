@@ -22,7 +22,7 @@ public class TransactionLoggerAspect {
 
     private final AtomicLong idCounter = new AtomicLong();
 
-    private static Map<Long, TransactionDetails> activeTransactions = new ConcurrentHashMap();
+    private static final Map<Long, TransactionDetails> activeTransactions = new ConcurrentHashMap<>();
 
     public TransactionLoggerAspect(final int limit) {
         this.limit = limit;
@@ -56,8 +56,7 @@ public class TransactionLoggerAspect {
 
     public static void logActiveTransactions(final Logger logger) {
         Map.copyOf(activeTransactions)
-                .entrySet()
-                .forEach(e -> logger.info("Active transaction {}", e.getValue().getLogString()));
+                .forEach((key, value) -> logger.info("Active transaction {}", value.getLogString()));
     }
 
     private static String argumentsToString(final Object[] args) {
@@ -70,7 +69,7 @@ public class TransactionLoggerAspect {
     private record TransactionDetails(String method, Object[] args, Long starttime) {
         String getLogString() {
             return String.format("%s age %d ms arguments %s", method, System.currentTimeMillis() - starttime, argumentsToString(args));
-        };
+        }
     }
 }
 
