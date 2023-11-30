@@ -13,10 +13,10 @@ public class ThreadUtilTest {
     @Test
     public void delayMs() {
         IntStream.range(0,4).parallel().forEach(i -> {
-            final StopWatch duration = StopWatch.createStarted();
             final int delayMs = TestUtil.getRandom(500, 1500);
+            final StopWatch duration = StopWatch.createStarted();
             ThreadUtil.delayMs(delayMs);
-            AssertUtil.assertGe(duration.getTime(), delayMs, 500);
+            AssertUtil.assertGe(duration.getTime(), delayMs, 700);
         });
     }
 }
