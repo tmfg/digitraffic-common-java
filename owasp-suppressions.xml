@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+
+    <!--
+        Temporary suppressions, check and update these periodically
+    -->
+
+    <!-- Waiting for update to Spring version of jackson. Issue is not affecting us
+         as we are not using json input on our public APIs -->
+    <suppress until="2024-07-01">
+        <notes><![CDATA[file name: jackson-databind-2.15.4.jar]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.fasterxml\.jackson\.core/jackson\-databind@.*$</packageUrl>
+        <cve>CVE-2023-35116</cve>
+    </suppress>
+
+    <!--
+        Permanent suppressions
+    -->
+
+</suppressions>

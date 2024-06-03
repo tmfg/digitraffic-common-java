@@ -4,6 +4,7 @@
 !/pom.xml
 !/LICENSE
 !/README.md
+!/owasp-suppressions.xml
 !/dependabot.yml
 
 !src/
