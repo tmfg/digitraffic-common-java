@@ -2,6 +2,7 @@ package fi.livi.digitraffic.common.config.metrics;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import io.micrometer.core.instrument.Meter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.search.RequiredSearch;
 
+@ConditionalOnExpression("'${config.test}' != 'true'")
 @Service
 public class PendingConnectionDebugger {
     private final MeterRegistry meterRegistry;
