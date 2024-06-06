@@ -35,7 +35,7 @@ public class LockingService {
     }
 
     /**
-     * Creates cached locking service for given lock name.
+     * Creates cached locking service for given lock name and registers it as a bean to Spring context.
      * @param lockName Name of the lock
      * @return Registered service bean
      */
@@ -46,6 +46,14 @@ public class LockingService {
         return createCachedLockingService(lockName, beanName);
     }
 
+    /**
+     * Creates cached locking service for given lock name but won't register it as a bean to Spring context.
+     * @param lockName Name of the lock
+     * @return Unregistered service object
+     */
+    public CachedLockingService createCachedLockingServiceObject(final String lockName) {
+        return new CachedLockingService(this, lockName);
+    }
     /**
      * Package private method. Only for tests to override bean name.
      * @param lockName Name of the lock
