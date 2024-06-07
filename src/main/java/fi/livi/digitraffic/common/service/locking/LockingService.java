@@ -101,7 +101,7 @@ public class LockingService {
     }
 
     // Run every hour
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 1000 * 60 * 60)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void clearExpiredLocks() {
         // Delete locks that have expired over hour ago
