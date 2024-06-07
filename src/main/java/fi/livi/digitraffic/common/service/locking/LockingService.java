@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebApplication;
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import fi.livi.digitraffic.common.dao.LockingDao;
 import fi.livi.digitraffic.common.util.StringUtil;
 
+@ConditionalOnNotWebApplication
 @Service
 public class LockingService {
     private static final Logger log = LoggerFactory.getLogger(LockingService.class);
@@ -99,7 +101,7 @@ public class LockingService {
     }
 
     // Run every hour
-    @Scheduled(fixedRate = 1000 * 60 * 60)
+    @Scheduled(fixedRate = 1000)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void clearExpiredLocks() {
         // Delete locks that have expired over hour ago
