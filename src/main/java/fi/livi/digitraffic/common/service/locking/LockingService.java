@@ -12,7 +12,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnNotWebAppli
 import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import fi.livi.digitraffic.common.dao.LockingDao;
@@ -86,12 +85,12 @@ public class LockingService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public boolean acquireLock(final String lockName, final int expirationSeconds) {
         return lockingDao.acquireLock(lockName, instanceId, expirationSeconds);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void unlock(final String lockName) {
         lockingDao.releaseLock(lockName, instanceId);
     }
@@ -102,13 +101,13 @@ public class LockingService {
 
     // Run every hour
     @Scheduled(fixedRate = 1000 * 60 * 60)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     protected void clearExpiredLocks() {
         // Delete locks that have expired over hour ago
         clearExpiredLocks(60 * 60);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     protected void clearExpiredLocks(final int secondsSinceExpired) {
         try {
             // Delete locks that have expired over hour ago
