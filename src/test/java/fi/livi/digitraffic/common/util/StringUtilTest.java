@@ -3,18 +3,11 @@ package fi.livi.digitraffic.common.util;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class StringUtilTest {
-
-    @BeforeAll
-    static void beforeAll() {
-        new StringUtil(new ObjectMapper());
-    }
 
     @Test
     public void format() {

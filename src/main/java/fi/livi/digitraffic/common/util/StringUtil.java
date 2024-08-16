@@ -3,21 +3,15 @@ package fi.livi.digitraffic.common.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
-import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-@Service // Just to initialize ObjectWriter
 public class StringUtil {
     private static final Logger log = LoggerFactory.getLogger(StringUtil.class);
 
-    private static ObjectWriter jsonObjectWriter;
-
-    public StringUtil(final ObjectMapper objectMapper) {
-        jsonObjectWriter = objectMapper.writerWithDefaultPrettyPrinter();
-    }
+    private static ObjectWriter jsonObjectWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
 
     /**
      * Performs string formation with log style messagePattern.
