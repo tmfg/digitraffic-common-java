@@ -1,5 +1,6 @@
 package fi.livi.digitraffic.common.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
@@ -51,6 +52,20 @@ public class StringUtil {
         if (value != null) {
             return value.replace("=", " = ");
         }
-        return value;
+        return null;
+    }
+
+    /**
+     * Replaces given str with changeToStr if searchStr is found in str.
+     * @param str string to search from
+     * @param searchStr string to search
+     * @param changeToStr string to return if searchStr is found
+     * @return either original str of changeToStr if match is found.
+     */
+    public static String changeToIfContains(final String str, final String searchStr, final String changeToStr) {
+        if (StringUtils.contains(str, searchStr)) {
+            return changeToStr;
+        }
+        return str;
     }
 }

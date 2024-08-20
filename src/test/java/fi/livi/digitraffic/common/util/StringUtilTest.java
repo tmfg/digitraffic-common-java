@@ -49,6 +49,14 @@ public class StringUtilTest {
         Assertions.assertEquals(expected, StringUtil.padKeyValuePairsEqualitySignWithSpaces(text));
     }
 
+    @Test
+    public void changeToIfContains() {
+        Assertions.assertEquals("Test string", StringUtil.changeToIfContains("Test string", "*", "no no"));
+        Assertions.assertEquals("yes yes", StringUtil.changeToIfContains("Test * string", "*", "yes yes"));
+        Assertions.assertNull(StringUtil.changeToIfContains("*******", "*", null));
+    }
+
+
     static class MyObject {
         @JsonProperty
         private final String text;
