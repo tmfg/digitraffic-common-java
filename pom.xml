@@ -16,7 +16,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <spring.version>3.3.2</spring.version>
+        <spring.version>3.3.3</spring.version>
     </properties>
 
     <profiles>
