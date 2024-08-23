@@ -12,6 +12,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.Random;
 
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -71,7 +72,7 @@ public final class TimeUtilTest {
 
     @Test
     public void dateToStringZDT() {
-        Assertions.assertEquals("", TimeUtil.dateToString("PREFIX",null));
+        Assertions.assertEquals("", TimeUtil.dateToString("PREFIX", null));
         Assertions.assertEquals("PREFIX=20231025", TimeUtil.dateToString("PREFIX", ZDT_2023_10_25T09_10_11_900_EEST));
         Assertions.assertEquals("20231025", TimeUtil.dateToString(null, ZDT_2023_10_25T09_10_11_900_EEST));
     }
@@ -86,7 +87,7 @@ public final class TimeUtilTest {
     @Test
     public void toInstant() {
         Assertions.assertEquals(Instant.parse(TXT_2023_10_25T09_10_11_900_EEST), TimeUtil.toInstant(ZDT_2023_10_25T09_10_11_900_EEST));
-        Assertions.assertNull(TimeUtil.toInstant( (ZonedDateTime) null));
+        Assertions.assertNull(TimeUtil.toInstant((ZonedDateTime) null));
     }
 
     @Test
@@ -104,11 +105,20 @@ public final class TimeUtilTest {
 
     @Test
     public void getInLastModifiedHeaderFormat() throws ParseException {
-        final String srcString = "Tue, 03 Sep 2019 13:56:36 GMT";
-        final java.util.Date srcDate = DateUtils.parseDate(srcString, TimeUtil.LAST_MODIFIED_FORMAT);
-        final Instant srcInstant = Instant.ofEpochMilli(srcDate.getTime());
+        final Locale defaultLocale = Locale.getDefault();
+        try {
+            // parsing the below date string fails with locale en_FI in some environments
+            Locale.setDefault(Locale.US);
 
-        assertEquals(srcString, TimeUtil.getInLastModifiedHeaderFormat(srcInstant));
+            final String srcString = "Tue, 03 Sep 2019 13:56:36 GMT";
+
+            final java.util.Date srcDate = DateUtils.parseDate(srcString, TimeUtil.LAST_MODIFIED_FORMAT);
+            final Instant srcInstant = Instant.ofEpochMilli(srcDate.getTime());
+
+            assertEquals(srcString, TimeUtil.getInLastModifiedHeaderFormat(srcInstant));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
     }
 
     @Test
@@ -223,7 +233,6 @@ public final class TimeUtilTest {
         assertEquals(DATE_STRING_MILLIS_Z, utc.toString());
     }
 
-
     @Test
     public void toXMLGregorianCalendarAtUtc_zdt() {
         final ZonedDateTime timeAtOffset2 = ZonedDateTime.parse(DATE_STRING_OFFSET_2);
@@ -239,7 +248,7 @@ public final class TimeUtilTest {
         final XMLGregorianCalendar xmlUtc = TimeUtil.toXMLGregorianCalendarAtUtc(instant);
         assertEquals(XML_DATE_STRING_Z, xmlUtc.toString());
         final ZonedDateTime utc = TimeUtil.toZonedDateTimeAtUtc(xmlUtc);
-        assertEquals(instant.getEpochSecond() , utc.toEpochSecond());
+        assertEquals(instant.getEpochSecond(), utc.toEpochSecond());
     }
 
     @Test
@@ -257,7 +266,7 @@ public final class TimeUtilTest {
 
         assertEquals("000000", StringUtils.right(String.valueOf(nowWithoutNanos.getNano()), 6));
         assertTrue(TimeUtil.millisBetween(now, nowWithoutNanos) <= 1);
-        assertEquals(now.toEpochMilli() , nowWithoutNanos.toEpochMilli(), 1000);
+        assertEquals(now.toEpochMilli(), nowWithoutNanos.toEpochMilli(), 1000);
     }
 
     @Test
@@ -266,7 +275,7 @@ public final class TimeUtilTest {
         final ZonedDateTime utc = TimeUtil.getZonedDateTimeNowAtUtc();
 
         assertEquals(0, utc.getOffset().getTotalSeconds());
-        assertEquals(now , utc.toEpochSecond());
+        assertEquals(now, utc.toEpochSecond());
     }
 
     @Test
@@ -275,7 +284,7 @@ public final class TimeUtilTest {
         final ZonedDateTime utc = TimeUtil.getZonedDateTimeNowWithoutMillisAtUtc();
 
         assertEquals(0, utc.getOffset().getTotalSeconds());
-        assertEquals(now , utc.toEpochSecond());
+        assertEquals(now, utc.toEpochSecond());
         assertEquals("0", StringUtils.right(String.valueOf(utc.getNano()), 9));
     }
 
