@@ -3,6 +3,7 @@ package fi.livi.digitraffic.common.dto;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -32,7 +33,11 @@ public interface LastModifiedSupport {
      */
     static Instant getLastModifiedOf(final Collection<? extends LastModifiedSupport> collection, final Instant lastModifiedAlternative) {
         return TimeUtil.getGreatest(
-                collection.stream().map(LastModifiedSupport::getLastModified).max(Comparator.naturalOrder()).orElse(lastModifiedAlternative),
-                lastModifiedAlternative);
+            collection.stream()
+                .map(LastModifiedSupport::getLastModified)
+                .filter(Objects::nonNull)
+                .max(Comparator.naturalOrder())
+                .orElse(lastModifiedAlternative),
+            lastModifiedAlternative);
     }
 }
