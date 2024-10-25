@@ -1,8 +1,12 @@
 package fi.livi.digitraffic.common.dto;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.Comparator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import fi.livi.digitraffic.common.util.TimeUtil;
 
 /**
  * If an object returned by a Controller implements this, LastModifiedAppenderControllerAdvice will call getLastModified()
@@ -19,5 +23,16 @@ public interface LastModifiedSupport {
     @JsonIgnore
     default boolean shouldContainLastModified() {
         return true;
+    }
+
+    /**
+     * @param collection to find latest modified time
+     * @param lastModifiedAlternative value to use if collection is empty or if value from collection is older than given value.
+     * @return last modified time
+     */
+    static Instant getLastModifiedOf(final Collection<? extends LastModifiedSupport> collection, final Instant lastModifiedAlternative) {
+        return TimeUtil.getGreatest(
+                collection.stream().map(LastModifiedSupport::getLastModified).max(Comparator.naturalOrder()).orElse(lastModifiedAlternative),
+                lastModifiedAlternative);
     }
 }
