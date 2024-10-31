@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Conditional;
 
 /**
- * {@link Conditional @Conditional} that checks if the specified property have non blank value.
+ * {@link Conditional @Conditional} that checks if the specified property have non-blank value.
  * Copied partly from {@link org.springframework.boot.autoconfigure.condition.ConditionalOnProperty}
  */
 @Retention(RetentionPolicy.RUNTIME)

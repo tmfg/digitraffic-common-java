@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class StringUtil {
     private static final Logger log = LoggerFactory.getLogger(StringUtil.class);
 
-    private static ObjectWriter jsonObjectWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
+    private static final ObjectWriter jsonObjectWriter = new ObjectMapper().writerWithDefaultPrettyPrinter();
 
     /**
      * Performs string formation with log style messagePattern.

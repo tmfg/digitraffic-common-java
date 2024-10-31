@@ -94,7 +94,7 @@ public class CachedLockingService implements DisposableBean {
      */
     public boolean lock(final long timeoutMs) {
         final StopWatch timer = StopWatch.createStarted();
-        while (!hasLock() && timer.getTime() < timeoutMs) {
+        while (!hasLock() && timer.getDuration().toMillis() < timeoutMs) {
             ThreadUtil.delayMs(100);
         }
         return hasLock();

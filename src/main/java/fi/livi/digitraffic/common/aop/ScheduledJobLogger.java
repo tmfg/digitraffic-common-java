@@ -48,9 +48,9 @@ public class ScheduledJobLogger {
         } finally {
             stopWatch.stop();
             if (error == null) {
-                JobLogger.logJobEndStatusSuccess(log, jobType, jobName, stopWatch.getTime());
+                JobLogger.logJobEndStatusSuccess(log, jobType, jobName, stopWatch.getDuration().toMillis());
             } else {
-                JobLogger.logJobEndStatusFail(log, jobType, jobName, stopWatch.getTime(), error);
+                JobLogger.logJobEndStatusFail(log, jobType, jobName, stopWatch.getDuration().toMillis(), error);
             }
         }
     }

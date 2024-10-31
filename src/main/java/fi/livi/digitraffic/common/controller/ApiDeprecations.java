@@ -2,7 +2,7 @@ package fi.livi.digitraffic.common.controller;
 
 /**
  * Sunset and deprecation texts
- *
+ * <p>
  * I.e. Sunset on 1.1.2022 -> create two constants, date in format YYYY-MM-DD:
  * <pre>
  * SUNSET_2022_01_01    = "2022-01-01"

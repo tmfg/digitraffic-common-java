@@ -43,7 +43,7 @@ public class TransactionLoggerAspect {
 
             return pjp.proceed();
         } finally {
-            final long tookMs = stopWatch.getTime();
+            final long tookMs = stopWatch.getDuration().toMillis();
 
             activeTransactions.remove(transactionId);
 

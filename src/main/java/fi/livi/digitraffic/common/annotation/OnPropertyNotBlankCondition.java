@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- * {@link Condition} that checks if the specified property have non blank value.
+ * {@link Condition} that checks if the specified property have non-blank value.
  *
  * @see ConditionalOnPropertyNotBlank
  *

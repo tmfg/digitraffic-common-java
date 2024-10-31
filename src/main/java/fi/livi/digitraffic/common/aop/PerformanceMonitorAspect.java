@@ -26,8 +26,8 @@ public class PerformanceMonitorAspect {
     public static final int DEFAULT_INFO_LIMIT = 1000;
 
      /**
-     * By default every method in class with @Service annotation is monitored.
-     * In addition any method can be monitored with @PerformanceMonitor annotation.
+     * By default, every method in class with @Service annotation is monitored.
+     * In addition, any method can be monitored with @PerformanceMonitor annotation.
      * @PerformanceMonitor annotation also has properties to adjust monitoring settings.
      *
      * @Around("@annotation(org.springframework.transaction.annotation.Transactional)") -> @Transactional annotated methods.
@@ -50,7 +50,7 @@ public class PerformanceMonitorAspect {
             return pjp.proceed();
         } finally {
             stopWatch.stop();
-            monitor(pjp, methodSignature, stopWatch.getTime());
+            monitor(pjp, methodSignature, stopWatch.getDuration().toMillis());
         }
     }
 
@@ -125,8 +125,7 @@ public class PerformanceMonitorAspect {
                 log.debug("buildArrayToString error", e);
                 builder.append("[").append(value.toString().replace(' ', '_')).append("]");
             }
-        } else if (value instanceof Collection<?>) {
-            final Collection<?> values = (Collection<?>) value;
+        } else if (value instanceof final Collection<?> values) {
             final Object[] objects = values.toArray(new Object[0]);
             buildArrayToString(builder, objects);
         } else {
