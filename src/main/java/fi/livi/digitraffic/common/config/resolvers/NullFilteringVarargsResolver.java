@@ -13,11 +13,11 @@ import fi.livi.digitraffic.common.annotation.CustomRequestParam;
 
 public class NullFilteringVarargsResolver implements HandlerMethodArgumentResolver {
 
-    // the resolver is run if parameter is annotated with @CustomRequest and is of type enum
+    // the resolver is run if parameter is annotated with @CustomRequestParam and is an array containing enums
     @Override
     public boolean supportsParameter(final MethodParameter parameter) {
         return parameter.hasParameterAnnotation(CustomRequestParam.class) &&
-            parameter.getParameterType().getComponentType().isEnum();
+            parameter.getParameterType().isArray() && parameter.getParameterType().getComponentType().isEnum();
     }
 
     @Override
