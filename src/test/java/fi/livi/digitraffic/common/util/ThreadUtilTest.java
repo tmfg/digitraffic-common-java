@@ -16,7 +16,7 @@ public class ThreadUtilTest {
             final int delayMs = TestUtil.getRandom(500, 1500);
             final StopWatch duration = StopWatch.createStarted();
             ThreadUtil.delayMs(delayMs);
-            AssertUtil.assertGe(duration.getTime(), delayMs, 700);
+            AssertUtil.assertGe(duration.getDuration().toMillis(), delayMs, 700);
         });
     }
 }

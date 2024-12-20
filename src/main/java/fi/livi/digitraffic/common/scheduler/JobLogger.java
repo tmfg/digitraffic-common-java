@@ -2,6 +2,8 @@ package fi.livi.digitraffic.common.scheduler;
 
 import org.slf4j.Logger;
 
+import fi.livi.digitraffic.common.util.StringUtil;
+
 public class JobLogger {
 
     public enum JobType {
@@ -26,9 +28,7 @@ public class JobLogger {
         log.info(formatMessage(jobType, jobName, JobEndStatus.SUCCESS, timeMs));
     }
 
-    private static final String messageFormat = "jobType=%s jobName=%s jobEndStatus=%s jobTimeMs=%d";
-
     private static String formatMessage(final JobType jobType, final String jobName, final JobEndStatus status, final long timeMs) {
-        return String.format(messageFormat, jobType, jobName, status, timeMs);
+        return StringUtil.format("jobType={} jobName={} jobEndStatus={} tookMs={}", jobType, jobName, status, timeMs);
     }
 }

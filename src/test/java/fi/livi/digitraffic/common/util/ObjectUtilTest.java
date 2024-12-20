@@ -20,4 +20,28 @@ public class ObjectUtilTest {
         Assertions.assertNotEquals(TestEnum.FIRST.name(), TestEnum.FIRST.toString());
         Assertions.assertEquals("FIRST", ObjectUtil.getEnumName(TestEnum.FIRST));
     }
+
+    @Test
+    public void callIfNotNull() {
+        Assertions.assertEquals("YES", ObjectUtil.callIfNotNull("", () -> "YES"));
+    }
+
+    @Test
+    public void callIfNotNullWithNull() {
+        ObjectUtil.callIfNotNull(null, () -> {
+            throw new RuntimeException("Should not be called");
+        });
+    }
+
+    @Test
+    public void callAndIgnoreExeption() {
+        Assertions.assertEquals("YES", ObjectUtil.callAndIgnoreExeption(() -> "YES"));
+    }
+
+    @Test
+    public void callAndIgnoreExeptionThrows() {
+        Assertions.assertNull(ObjectUtil.callAndIgnoreExeption(() -> {
+            throw new RuntimeException("Should not be called");
+        }));
+    }
 }
