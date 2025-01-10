@@ -18,7 +18,7 @@ import fi.livi.digitraffic.common.annotation.CustomRequestParam;
 import fi.livi.digitraffic.common.config.resolvers.NullFilteringVarargsResolver;
 
 public class NullFilteringTest {
-    
+
     enum TestEnum {
         A,
         B,
@@ -71,9 +71,11 @@ public class NullFilteringTest {
 
     @Test
     public void testResolveArgumentWithNullAndEmptyValues() throws Exception {
-        when(webRequest.getParameterValues("arrayParameter")).thenReturn(new String[] { "", "C", null, "D" });
+        final String[] parameterValues = new String[] { "", "C", null, "D" };
+
+        when(webRequest.getParameterValues("arrayParameter")).thenReturn(parameterValues);
         when(methodParameter.getParameterName()).thenReturn("arrayParameter");
-        when(methodParameter.getParameterType()).thenReturn((Class) TestEnum[].class);
+        when(methodParameter.getParameterType()).thenReturn((Class) parameterValues.getClass());
         when(methodParameter.getParameterType().getComponentType()).thenReturn((Class) TestEnum[].class);
 
         final Object[] result = resolver.resolveArgument(methodParameter, mavContainer, webRequest, binderFactory);
@@ -83,9 +85,11 @@ public class NullFilteringTest {
 
     @Test
     public void testResolveArgumentWithInvalidEnumValues() {
-        when(webRequest.getParameterValues("arrayParameter")).thenReturn(new String[] { "INVALID" });
+        final String[] parameterValues = new String[] { "INVALID" };
+
+        when(webRequest.getParameterValues("arrayParameter")).thenReturn(parameterValues);
         when(methodParameter.getParameterName()).thenReturn("arrayParameter");
-        when(methodParameter.getParameterType()).thenReturn((Class) TestEnum[].class);
+        when(methodParameter.getParameterType()).thenReturn((Class) parameterValues.getClass());
         when(methodParameter.getParameterType().getComponentType()).thenReturn((Class) TestEnum[].class);
 
         assertThrows(IllegalArgumentException.class, () -> {
