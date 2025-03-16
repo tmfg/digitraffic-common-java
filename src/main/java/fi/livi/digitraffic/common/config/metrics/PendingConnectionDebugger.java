@@ -34,8 +34,8 @@ public class PendingConnectionDebugger {
         final Measurement measurement = meter.measure().iterator().next(); // should only have one measurement
 
         // when too many connections are pending, print all active transactions
-        if(measurement.getValue() > PENDING_CONNECTIONS_LOG_LIMIT) {
-            log.error("Connections pending! count={}", measurement.getValue());
+        if (measurement.getValue() > PENDING_CONNECTIONS_LOG_LIMIT) {
+            log.error("method=pendingConnections Connections pending! count={}", measurement.getValue());
 
             TransactionLoggerAspect.logActiveTransactions(log);
         }

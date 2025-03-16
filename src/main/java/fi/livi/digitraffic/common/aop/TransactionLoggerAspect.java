@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 
+import fi.livi.digitraffic.common.util.StringUtil;
+
 @Aspect
 @Order
 public class TransactionLoggerAspect {
@@ -47,7 +49,7 @@ public class TransactionLoggerAspect {
 
             activeTransactions.remove(transactionId);
 
-            if(tookMs > limit) {
+            if (tookMs > limit) {
                 final String arguments = argumentsToString(args);
                 log.info("Transaction method={} arguments={} tookMs={}", methodKey, arguments, tookMs);
             }
@@ -56,7 +58,8 @@ public class TransactionLoggerAspect {
 
     public static void logActiveTransactions(final Logger logger) {
         Map.copyOf(activeTransactions)
-                .forEach((key, value) -> logger.info("Active transaction {}", value.getLogString()));
+            .forEach((key, value) -> logger.info("method=logActiveTransactions Active transaction {}",
+                value.getLogString()));
     }
 
     private static String argumentsToString(final Object[] args) {
@@ -68,7 +71,8 @@ public class TransactionLoggerAspect {
 
     private record TransactionDetails(String method, Object[] args, Long starttime) {
         String getLogString() {
-            return String.format("%s age %d ms arguments %s", method, System.currentTimeMillis() - starttime, argumentsToString(args));
+            return StringUtil.format("activeTransaction={} ageMs={} arguments {}", method,
+                System.currentTimeMillis() - starttime, argumentsToString(args));
         }
     }
 }
