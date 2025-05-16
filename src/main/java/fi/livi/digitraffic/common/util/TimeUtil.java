@@ -174,6 +174,31 @@ public abstract class TimeUtil {
         return null;
     }
 
+    /**
+     * Needed because some fields in db are Oracle Date type and Date won't have millis.
+     */
+    public static Instant toInstantWithoutMillis(final XMLGregorianCalendar calendar)  {
+        if (calendar != null) {
+            try {
+                final XMLGregorianCalendar calSeconds =
+                    DatatypeFactory.newInstance().newXMLGregorianCalendar(
+                        calendar.getYear(),
+                        calendar.getMonth(),
+                        calendar.getDay(),
+                        calendar.getHour(),
+                        calendar.getMinute(),
+                        calendar.getSecond(),
+                        0,
+                        calendar.getTimezone());
+                return toInstant(calSeconds);
+            } catch (final DatatypeConfigurationException e) {
+                throw new IllegalArgumentException("Failed to convert XMLGregorianCalendar " + calendar + " to XMLGregorianCalendar with out millis.", e);
+            }
+        }
+        return null;
+    }
+
+
     public static ZonedDateTime toZonedDateTimeAtUtc(final ZonedDateTime zonedDateTime) {
         return zonedDateTime == null ? null : toZonedDateTimeAtUtc(zonedDateTime.toInstant());
     }

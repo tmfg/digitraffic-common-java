@@ -206,6 +206,15 @@ public final class TimeUtilTest {
     }
 
     @Test
+    public void toInstantWithoutMillisAtUtc_XmlGregorianCalendar() throws DatatypeConfigurationException {
+        final GregorianCalendar gc = GregorianCalendar.from((ZonedDateTime.parse(DATE_STRING_OFFSET_2).plusNanos(500000000)));
+        final XMLGregorianCalendar xmlDate = DatatypeFactory.newInstance().newXMLGregorianCalendar(gc);
+
+        final Instant zdtWithOutMillis = TimeUtil.toInstantWithoutMillis(xmlDate);
+        assertEquals(DATE_STRING_Z, zdtWithOutMillis.toString());
+    }
+
+    @Test
     public void toZonedDateTimeAtUtc_zdt() {
         final ZonedDateTime from = ZonedDateTime.parse(DATE_STRING_OFFSET_2);
         final ZonedDateTime utc = TimeUtil.toZonedDateTimeAtUtc(from);

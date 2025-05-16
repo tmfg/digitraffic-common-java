@@ -159,6 +159,12 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
     }
 
     @Test
+    public void isoDateTimeOffsetMillis() throws IOException {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00:10.123+02:00");
+        assertEquals("{\"foo\":\"2020-05-01T10:00:10.123Z\"}", result);
+    }
+
+    @Test
     public void isoDateTimeZ() throws IOException {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00:00Z");
         assertEquals("{\"foo\":\"2020-05-01T12:00:00Z\"}", result);
