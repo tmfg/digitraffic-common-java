@@ -128,6 +128,10 @@ public abstract class TimeUtil {
         return calendar == null ? null : calendar.toGregorianCalendar().toInstant();
     }
 
+    public static LocalDate toLocalDate(final XMLGregorianCalendar calendar) {
+        return calendar == null ? null : LocalDate.of(calendar.getYear(), calendar.getMonth(), calendar.getDay());
+    }
+
     public static Instant toInstant(final long epochMillis) {
         return Instant.ofEpochMilli(epochMillis);
     }

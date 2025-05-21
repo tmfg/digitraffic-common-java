@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -16,6 +17,7 @@ import java.util.Locale;
 import java.util.Random;
 
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
@@ -165,6 +167,13 @@ public final class TimeUtilTest {
         final GregorianCalendar wc = GregorianCalendar.from((ZonedDateTime.parse(DATE_STRING_OFFSET_2)));
         final Instant convertedInstant = TimeUtil.toInstant(DatatypeFactory.newInstance().newXMLGregorianCalendar(wc));
         assertEquals(DATE_STRING_Z, convertedInstant.toString());
+    }
+
+    @Test
+    public void toLocalDate_xmlGregorianCalendar() throws DatatypeConfigurationException {
+        final XMLGregorianCalendar date = DatatypeFactory.newInstance().newXMLGregorianCalendarDate(2022, 1, 23, DatatypeConstants.FIELD_UNDEFINED);
+        final LocalDate localDate = TimeUtil.toLocalDate(date);
+        assertEquals("2022-01-23", localDate.toString());
     }
 
     @Test
