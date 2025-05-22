@@ -319,8 +319,4 @@ public abstract class TimeUtil {
     public static Long getEpochSeconds(final Instant time) {
         return time == null ? null : time.getEpochSecond();
     }
-
-    public static Long getEpochSeconds(final ZonedDateTime time) {
-        return time == null ? null : time.toEpochSecond();
-    }
 }
