@@ -201,6 +201,18 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
     }
 
     @Test
+    public void nullValueMessage() throws IOException {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("a=null");
+        assertEquals("{\"a\":null}", result);
+    }
+
+    @Test
+    public void emptyValueMessage() throws IOException {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("a=");
+        assertEquals("{}", result);
+    }
+
+    @Test
     public void emptyMessage() throws IOException {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("");
         assertEquals("{}", result);

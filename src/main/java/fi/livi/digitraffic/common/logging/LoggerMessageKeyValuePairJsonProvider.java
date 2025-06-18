@@ -62,6 +62,9 @@ public class LoggerMessageKeyValuePairJsonProvider extends AbstractJsonProvider<
     }
 
     private static Object getObjectValue(final String value) {
+        if (value == null || value.isEmpty()) {
+            return value;
+        }
         if(isQuoted(value)) {
             return value.substring(1, value.length() - 1);
         } else if( "true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value) ) {
@@ -82,7 +85,7 @@ public class LoggerMessageKeyValuePairJsonProvider extends AbstractJsonProvider<
     }
 
     private static boolean isQuoted(final String value) {
-        return value.length() > 2 && value.charAt(0) == '\"' && value.charAt(value.length() - 1) == '\"';
+        return value != null && value.length() > 2 && value.charAt(0) == '\"' && value.charAt(value.length() - 1) == '\"';
     }
 
     private static List<Pair<String, String>> parseKeyValuePairs(final String formattedMessage) {
