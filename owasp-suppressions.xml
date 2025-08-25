@@ -3,10 +3,12 @@
 
     <!-- Temporary suppressions, check and update these periodically -->
 
+    <!-- We are not using jakarta mail:
+         In Jakarta Mail 2.0.2 it is possible to preform a SMTP Injection
+         by utilizing the \r and \n UTF-8 characters to separate different messages.-->
     <suppress until="2025-10-01">
         <notes><![CDATA[file name: angus-activation-2.0.0.jar]]></notes>
         <packageUrl regex="true">^pkg:maven/org\.eclipse\.angus/angus-activation@.*$</packageUrl>
-        <!-- we're not using vulnerable things -->
         <cve>CVE-2025-7962</cve>
     </suppress>
 
