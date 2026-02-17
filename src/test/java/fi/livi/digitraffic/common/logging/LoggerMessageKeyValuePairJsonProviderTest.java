@@ -16,10 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.event.KeyValuePair;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JsonEncoding;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -31,18 +31,15 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
 
     final LoggerMessageKeyValuePairJsonProvider provider = new LoggerMessageKeyValuePairJsonProvider();
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private JsonFactory factory;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     public void init() {
-        factory = new JsonFactory();
-        factory.setCodec(objectMapper);
+        objectMapper = JsonMapper.builder().build();
     }
 
     private JsonGenerator createJsonGenerator(final OutputStream out) throws IOException {
-        return factory.createGenerator(out, JsonEncoding.UTF8);
+        return objectMapper.createGenerator(out, JsonEncoding.UTF8);
     }
 
     final static String[] ALLOWED_KEYS = {
