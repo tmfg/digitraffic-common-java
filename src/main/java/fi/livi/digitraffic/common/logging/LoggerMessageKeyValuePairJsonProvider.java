@@ -1,6 +1,5 @@
 package fi.livi.digitraffic.common.logging;
 
-import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.ZonedDateTime;
@@ -15,7 +14,8 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.fasterxml.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JacksonException;
 import com.google.common.base.Splitter;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -52,9 +52,10 @@ public class LoggerMessageKeyValuePairJsonProvider extends AbstractJsonProvider<
             if (!hasWrittenFieldNames.contains(e.getKey())) {
                 try {
                     final Object objectValue = getObjectValue(e.getValue());
-                    generator.writeObjectField(e.getKey(), objectValue);
+                    generator.writeName(e.getKey());
+                    generator.writePOJO(objectValue);
                     hasWrittenFieldNames.add(e.getKey());
-                } catch (final IOException ex) {
+                } catch (final JacksonException ex) {
                     throw new RuntimeException(ex);
                 }
             }

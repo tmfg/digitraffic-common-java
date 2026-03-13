@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 public class StringUtilTest {
 
@@ -57,6 +58,7 @@ public class StringUtilTest {
     }
 
 
+    @JsonPropertyOrder({ "text", "number" })
     static class MyObject {
         @JsonProperty
         private final String text;
