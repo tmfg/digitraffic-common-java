@@ -20,6 +20,7 @@ import fi.livi.digitraffic.common.util.StringUtil;
 
 @ConditionalOnNotWebApplication
 @Service
+@SuppressWarnings("unused") // Public library API - methods are used by consumers of this library
 public class LockingService {
     private static final Logger log = LoggerFactory.getLogger(LockingService.class);
 
@@ -41,11 +42,24 @@ public class LockingService {
      * @param lockName Name of the lock
      * @return Registered service bean
      */
+    @SuppressWarnings("unused") // Public library API - used by consumers of this library
     public CachedLockingService createCachedLockingService(final String lockName) {
+        return createCachedLockingService(lockName, CachedLockingService.DEFAULT_EXPIRATION_SECONDS);
+    }
+
+    /**
+     * Creates cached locking service with a custom lock expiration for given lock name and registers it as a bean.
+     * Use this when DB latency might exceed the default 2-second TTL (e.g. the JMS lock that must
+     * survive slow DB round-trips without causing a false lock-loss).
+     * @param lockName          Name of the lock
+     * @param expirationSeconds How many seconds until the lock expires if not refreshed
+     * @return Registered service bean
+     */
+    public CachedLockingService createCachedLockingService(final String lockName, final int expirationSeconds) {
         final String beanName =
                 StringUtil.format("{}.{}", StringUtils.uncapitalize(CachedLockingService.class.getSimpleName()),
                         lockName);
-        return createCachedLockingService(lockName, beanName);
+        return createCachedLockingService(lockName, beanName, expirationSeconds);
     }
 
     /**
@@ -53,6 +67,7 @@ public class LockingService {
      * @param lockName Name of the lock
      * @return Unregistered service object
      */
+    @SuppressWarnings("unused") // Public library API - used by consumers of this library
     public CachedLockingService createCachedLockingServiceObject(final String lockName) {
         return new CachedLockingService(this, lockName);
     }
@@ -62,7 +77,12 @@ public class LockingService {
      * @param beanName Bean name to register for the service
      * @return Registered service bean
      */
+    @SuppressWarnings("unused") // Used by tests in consumer projects
     CachedLockingService createCachedLockingService(final String lockName, final String beanName) {
+        return createCachedLockingService(lockName, beanName, CachedLockingService.DEFAULT_EXPIRATION_SECONDS);
+    }
+
+    CachedLockingService createCachedLockingService(final String lockName, final String beanName, final int expirationSeconds) {
         final Optional<CachedLockingService> bean = getBeanIfRegistered(beanName);
         if (bean.isPresent()) {
             log.info("method=createCachedLockingService Bean {} already exist, returning {}", beanName, lockName);
@@ -74,7 +94,7 @@ public class LockingService {
         }
         // needed to registerBean to initialize @Scheduled annotation
         applicationContext.registerBean(beanName, CachedLockingService.class,
-                () -> new CachedLockingService(this, lockName));
+                () -> new CachedLockingService(this, lockName, expirationSeconds));
         return applicationContext.getBean(beanName, CachedLockingService.class);
     }
 

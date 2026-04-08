@@ -22,18 +22,31 @@ import fi.livi.digitraffic.common.util.ThreadUtil;
  * Initially timed behaviour is deactivated and will be activated on first call to hasLock method.
  * It is also possible to manually activate/deactivate timed lock reservation. Call to hasLock will always check and activate this behaviour if it is not activated.
  */
-
+@SuppressWarnings("unused") // Public library API - methods are used by consumers of this library
 public class CachedLockingService implements DisposableBean {
     private static final Logger log = LoggerFactory.getLogger(CachedLockingService.class);
     private static final Set<String> bookedLockNames = new HashSet<>();
 
+    /**
+     * Default lock expiration in seconds. The lock is refreshed every second, so with a 2-second
+     * TTL a single DB round-trip that takes >1s causes a false lock-loss. Callers that need a
+     * higher tolerance for DB latency should use the constructor that accepts expirationSeconds.
+     */
+    public static final int DEFAULT_EXPIRATION_SECONDS = 2;
+
     private final LockingService lockingService;
     private final String lockName;
+    private final int expirationSeconds;
     private final AtomicBoolean hasLock = new AtomicBoolean(false);
     private boolean active = false;
 
     CachedLockingService(final LockingService lockingService, final String lockName) {
+        this(lockingService, lockName, DEFAULT_EXPIRATION_SECONDS);
+    }
+
+    CachedLockingService(final LockingService lockingService, final String lockName, final int expirationSeconds) {
         this.lockingService = lockingService;
+        this.expirationSeconds = expirationSeconds;
         synchronized (bookedLockNames) {
             if (bookedLockNames.contains(lockName)) {
                 throw new IllegalArgumentException(
@@ -80,6 +93,7 @@ public class CachedLockingService implements DisposableBean {
      * Stops trying to keep the lock all the time and releases the lock.
      * This is reactivated by calling activate() or hasLock().
      */
+    @SuppressWarnings("unused") // Public library API - used by consumers of this library
     public void deactivate() {
         this.active = false;
         hasLock.set(false);
@@ -92,6 +106,7 @@ public class CachedLockingService implements DisposableBean {
      * @param timeoutMs timeout for trying to get the lock.
      * @return true if lock was successfully acquired.
      */
+    @SuppressWarnings("unused") // Public library API - used by consumers of this library
     public boolean lock(final long timeoutMs) {
         final StopWatch timer = StopWatch.createStarted();
         while (!hasLock() && timer.getDuration().toMillis() < timeoutMs) {
@@ -113,13 +128,13 @@ public class CachedLockingService implements DisposableBean {
                 active, getInstanceId());
     }
 
-    // Expiration 2 seconds and refresh lock every second
+    // Expiration configurable per instance (default 2s), refresh every second
     @NoJobLogging
     @Scheduled(fixedRate = 1000)
     public void acquireLock() {
         if (active) {
             try {
-                hasLock.set(lockingService.acquireLock(lockName, 2));
+                hasLock.set(lockingService.acquireLock(lockName, expirationSeconds));
             } catch (final Exception e) {
                 hasLock.set(false);
                 log.error("method=acquireLock Failed for {}", getLockInfoForLogging(), e);
@@ -135,7 +150,7 @@ public class CachedLockingService implements DisposableBean {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         log.info("method=destroy {}", getLockInfoForLogging());
         active = false;
         bookedLockNames.remove(lockName);
