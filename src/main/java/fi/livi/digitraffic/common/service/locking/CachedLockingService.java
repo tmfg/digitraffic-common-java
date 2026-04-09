@@ -28,11 +28,11 @@ public class CachedLockingService implements DisposableBean {
     private static final Set<String> bookedLockNames = new HashSet<>();
 
     /**
-     * Default lock expiration in seconds. The lock is refreshed every second, so with a 2-second
-     * TTL a single DB round-trip that takes >1s causes a false lock-loss. Callers that need a
+     * Default lock expiration in seconds. The lock is refreshed every second, so with a 3-second
+     * TTL a single DB round-trip that takes >2s causes a false lock-loss. Callers that need a
      * higher tolerance for DB latency should use the constructor that accepts expirationSeconds.
      */
-    public static final int DEFAULT_EXPIRATION_SECONDS = 2;
+    public static final int DEFAULT_EXPIRATION_SECONDS = 3;
 
     private final LockingService lockingService;
     private final String lockName;
