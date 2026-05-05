@@ -21,14 +21,19 @@ public class JobLogger {
     }
 
     public static void logJobEndStatusFail(final Logger log, final JobType jobType, final String jobName, final long timeMs, final Exception lastError) {
-        log.error(formatMessage(jobType, jobName, JobEndStatus.FAIL, timeMs), lastError);
+        logJobEndStatus(log, jobType, jobName, JobEndStatus.FAIL, timeMs, lastError);
     }
 
     public static void logJobEndStatusSuccess(final Logger log, final JobType jobType, final String jobName, final long timeMs) {
-        log.info(formatMessage(jobType, jobName, JobEndStatus.SUCCESS, timeMs));
+        logJobEndStatus(log, jobType, jobName, JobEndStatus.SUCCESS, timeMs, null);
     }
 
-    private static String formatMessage(final JobType jobType, final String jobName, final JobEndStatus status, final long timeMs) {
-        return StringUtil.format("jobType={} jobName={} jobEndStatus={} tookMs={}", jobType, jobName, status, timeMs);
+    private static void logJobEndStatus(final Logger log, final JobType jobType, final String jobName, final JobEndStatus status, final long timeMs, final Exception error) {
+        final String message = StringUtil.format("method=logJobEndStatus jobType={} jobName={} jobEndStatus={} tookMs={}", jobType, jobName, status, timeMs);
+        if (error != null) {
+            log.error(message, error);
+        } else {
+            log.info(message);
+        }
     }
 }
