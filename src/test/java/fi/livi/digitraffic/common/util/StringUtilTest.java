@@ -52,7 +52,7 @@ public class StringUtilTest {
 
     @Test
     public void fileBaseName() {
-        Assertions.assertEquals("locations.csv", StringUtil.fileBaseName("https://example.com/4.6.zip!locations.csv"));
+        Assertions.assertEquals("4.6.zip!locations.csv", StringUtil.fileBaseName("https://example.com/4.6.zip!locations.csv"));
         Assertions.assertEquals("FI_LC_4.6.zip!locations.csv", StringUtil.fileBaseName("https://tmc.digitraffic.fi/tmc/FI_LC_4.6.zip!locations.csv"));
         Assertions.assertEquals("locations.csv", StringUtil.fileBaseName("locations.csv"));
         Assertions.assertEquals("", StringUtil.fileBaseName("ends/with/slash/"));
