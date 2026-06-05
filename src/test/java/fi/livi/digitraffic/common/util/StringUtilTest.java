@@ -51,6 +51,15 @@ public class StringUtilTest {
     }
 
     @Test
+    public void fileBaseName() {
+        Assertions.assertEquals("locations.csv", StringUtil.fileBaseName("https://example.com/4.6.zip!locations.csv"));
+        Assertions.assertEquals("FI_LC_4.6.zip!locations.csv", StringUtil.fileBaseName("https://tmc.digitraffic.fi/tmc/FI_LC_4.6.zip!locations.csv"));
+        Assertions.assertEquals("locations.csv", StringUtil.fileBaseName("locations.csv"));
+        Assertions.assertEquals("", StringUtil.fileBaseName("ends/with/slash/"));
+        Assertions.assertNull(StringUtil.fileBaseName(null));
+    }
+
+    @Test
     public void changeToIfContains() {
         Assertions.assertEquals("Test string", StringUtil.changeToIfContains("Test string", "*", "no no"));
         Assertions.assertEquals("yes yes", StringUtil.changeToIfContains("Test * string", "*", "yes yes"));
