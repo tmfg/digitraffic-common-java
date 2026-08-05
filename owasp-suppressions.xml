@@ -3,6 +3,22 @@
 
     <!-- Temporary suppressions, check and update these periodically -->
 
+    <suppress until="2026-11-01">
+        <notes><![CDATA[file name: swagger-ui-5.32.2.jar: swagger-ui-bundle.js]]></notes>
+        <packageUrl regex="true">^pkg:javascript/DOMPurify@.*$</packageUrl>
+        <cve>CVE-2026-65898</cve>
+    </suppress>
+
+    <suppress until="2026-11-01">
+        <notes><![CDATA[file name: tomcat-embed-core-11.0.22.jar: tomcat-embed-core-11.0.22.jar]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.apache\.tomcat\.embed/tomcat-.*$</packageUrl>
+        <cve>CVE-2026-55276</cve>
+        <cve>CVE-2026-53434</cve>
+        <cve>CVE-2026-59083</cve>
+        <cve>CVE-2026-53404</cve>
+        <cve>CVE-2026-59084</cve>
+    </suppress>
+
     <!-- We are not using jakarta mail:
          In Jakarta Mail 2.0.2 it is possible to preform a SMTP Injection
          by utilizing the \r and \n UTF-8 characters to separate different messages.-->
