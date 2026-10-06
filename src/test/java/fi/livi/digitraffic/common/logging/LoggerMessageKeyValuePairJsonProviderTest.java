@@ -3,7 +3,6 @@ package fi.livi.digitraffic.common.logging;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -18,6 +17,7 @@ import org.slf4j.event.KeyValuePair;
 
 import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -38,7 +38,7 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
         objectMapper = JsonMapper.builder().build();
     }
 
-    private JsonGenerator createJsonGenerator(final OutputStream out) throws IOException {
+    private JsonGenerator createJsonGenerator(final OutputStream out) {
         return objectMapper.createGenerator(out, JsonEncoding.UTF8);
     }
 
@@ -93,9 +93,8 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
         };
 
     @Test
-    public void allowedKeys() throws IOException {
+    public void allowedKeys() {
         for (final String allowedKey : ALLOWED_KEYS) {
-            log.info("Test key {}", allowedKey);
             final String result = sendEventWithFormatedMessageAndReturnResultJson(allowedKey + "=bar");
             assertEquals(String.format("{\"%s\":\"bar\"}", allowedKey), result);
         }
@@ -103,9 +102,8 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
     }
 
     @Test
-    public void notAllowedKeys() throws IOException {
+    public void notAllowedKeys() {
         for (final String notAllowedKey : NOT_ALLOWED_KEYS) {
-            log.info("Test key {}", notAllowedKey);
             final String result = sendEventWithFormatedMessageAndReturnResultJson(notAllowedKey + "=bar");
             assertEquals("{}", result);
         }
@@ -113,133 +111,372 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
     }
 
     @Test
-    public void simpleKeyValuePair() throws IOException {
+    public void simpleKeyValuePair() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=bar");
         assertEquals("{\"foo\":\"bar\"}", result);
     }
 
     @Test
-    public void simpleKeyValuePair3() throws IOException {
+    public void simpleKeyValuePair3() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("healthCheckValue=<status>ok</status>");
         assertEquals("{\"healthCheckValue\":\"<status>ok</status>\"}", result);
     }
 
 
     @Test
-    public void simpleKeyValuePair2() throws IOException {
+    public void simpleKeyValuePair2() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("  \n  \t    foo=bar     \n   ");
         assertEquals("{\"foo\":\"bar\"}", result);
     }
 
     @Test
-    public void intValue() throws IOException {
+    public void intValue() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1");
         assertEquals("{\"foo\":1}", result);
     }
 
     @Test
-    public void doubleValue() throws IOException {
+    public void doubleValue() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1.4");
         assertEquals("{\"foo\":1.4}", result);
     }
 
     @Test
-    public void doubleValueWithComma() throws IOException {
+    public void doubleValueWithComma() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1,4");
-        assertEquals("{\"foo\":14}", result);
+        assertEquals("{\"foo\":1.4}", result);
     }
 
     @Test
-    public void isoDateTimeOffset() throws IOException {
+    public void integralDoubleValueWithCommaStaysDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1,0");
+        assertEquals("{\"foo\":1.0}", result);
+    }
+
+    @Test
+    public void subMillisecondDurationWithCommaKeepsPrecision() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("duration=0,003");
+        assertEquals("{\"duration\":0.003}", result);
+    }
+
+    @Test
+    public void negativeValueWithCommaIsDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=-3,5");
+        assertEquals("{\"foo\":-3.5}", result);
+    }
+
+    @Test
+    public void valueWithSeveralSeparatorsStaysString() {
+        // A number has at most one separator, so these are not numbers.
+        assertEquals("{\"foo\":\"1.123.456\"}", sendEventWithFormatedMessageAndReturnResultJson("foo=1.123.456"));
+        assertEquals("{\"foo\":\"1,123,456\"}", sendEventWithFormatedMessageAndReturnResultJson("foo=1,123,456"));
+    }
+
+    @Test
+    public void singleSeparatorIsADecimal() {
+        assertEquals("{\"foo\":1.123}", sendEventWithFormatedMessageAndReturnResultJson("foo=1.123"));
+        assertEquals("{\"foo\":1.123}", sendEventWithFormatedMessageAndReturnResultJson("foo=1,123"));
+    }
+
+    @Test
+    public void ipAddressStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=10.0.0.1");
+        assertEquals("{\"foo\":\"10.0.0.1\"}", result);
+    }
+
+    @Test
+    public void versionNumberStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("version=1.2.3");
+        assertEquals("{\"version\":\"1.2.3\"}", result);
+    }
+
+    @Test
+    public void valueStartingWithDigitsStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=123abc");
+        assertEquals("{\"foo\":\"123abc\"}", result);
+    }
+
+    @Test
+    public void valueEndingWithDigitsStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=abc123");
+        assertEquals("{\"foo\":\"abc123\"}", result);
+    }
+
+    @Test
+    public void nonAsciiDigitStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=١٢٣");
+        assertEquals("{\"foo\":\"١٢٣\"}", result);
+    }
+
+    @Test
+    public void fullWidthDigitStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=１２３");
+        assertEquals("{\"foo\":\"１２３\"}", result);
+    }
+
+    @Test
+    public void valueWithUnitStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1.5%");
+        assertEquals("{\"foo\":\"1.5%\"}", result);
+    }
+
+    @Test
+    public void hexValueStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=0x1F");
+        assertEquals("{\"foo\":\"0x1F\"}", result);
+    }
+
+    @Test
+    public void quotedCommaSeparatedListStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=\"1,234,567\"");
+        assertEquals("{\"foo\":\"1,234,567\"}", result);
+    }
+
+    @Test
+    public void integralDoubleValueStaysDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2.000");
+        assertEquals("{\"foo\":2.0}", result);
+    }
+
+    @Test
+    public void zeroDoubleValueStaysDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=0.0");
+        assertEquals("{\"foo\":0.0}", result);
+    }
+
+    @Test
+    public void subMillisecondDurationKeepsPrecision() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("duration=0.003");
+        assertEquals("{\"duration\":0.003}", result);
+    }
+
+    @Test
+    public void leadingDotValueIsDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=.5");
+        assertEquals("{\"foo\":0.5}", result);
+    }
+
+    @Test
+    public void dotSeparatedValueStaysString() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1.2.3");
+        assertEquals("{\"foo\":\"1.2.3\"}", result);
+    }
+
+    @Test
+    public void trailingDotValueIsNotForcedToDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2.");
+        assertEquals("{\"foo\":2}", result);
+    }
+
+    @Test
+    public void isoDateTimeOffset() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00+02:00");
         assertEquals("{\"foo\":\"2020-05-01T10:00:00Z\"}", result);
     }
 
     @Test
-    public void isoDateTimeOffsetMillis() throws IOException {
+    public void isoDateTimeOffsetMillis() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00:10.123+02:00");
         assertEquals("{\"foo\":\"2020-05-01T10:00:10.123Z\"}", result);
     }
 
     @Test
-    public void isoDateTimeZ() throws IOException {
+    public void isoDateTimeZ() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00:00Z");
         assertEquals("{\"foo\":\"2020-05-01T12:00:00Z\"}", result);
     }
 
     @Test
-    public void isoDateTimeZMillis() throws IOException {
+    public void isoDateTimeZMillis() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00:00.123Z");
         assertEquals("{\"foo\":\"2020-05-01T12:00:00.123Z\"}", result);
     }
 
     @Test
-    public void keyValueChainTakesFirstPair() throws IOException {
+    public void keyValueChainTakesFirstPair() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=bar=hello=world and=this");
         assertEquals("{\"foo\":\"bar\",\"and\":\"this\"}", result);
     }
 
     @Test
-    public void xmlTagsAreStripped() throws IOException {
+    public void xmlTagsAreStripped() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("a=b " + LONG_XML);
         assertEquals("{\"a\":\"b\"}", result);
     }
 
     @Test
-    public void xmlTagsAreStripped2() throws IOException {
+    public void xmlTagsAreStripped2() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("a=b " + LONG_XML2);
         assertEquals("{\"a\":\"b\"}", result);
     }
 
     @Test
-    public void nullMessage() throws IOException {
+    public void quotedValueKeepsXmlTags() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson(
+                "detail=\"Element <VehicleActivity> not allowed here\" next=1");
+        assertEquals("{\"detail\":\"Element <VehicleActivity> not allowed here\",\"next\":1}", result);
+    }
+
+    @Test
+    public void quotedValueKeepsWholeXmlDocument() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("xml=\"<a><b>text</b></a>\" next=1");
+        assertEquals("{\"xml\":\"<a><b>text</b></a>\",\"next\":1}", result);
+    }
+
+    @Test
+    public void unquotedXmlTagsAreStripped() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("detail=Element <VehicleActivity> next=1");
+        assertEquals("{\"detail\":\"Element\",\"next\":1}", result);
+    }
+
+    @Test
+    public void escapedQuoteDoesNotEndValue() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson(
+                "xml=\"<a class=\\\"bold\\\"><b>text</b></a>\" next=1");
+        assertEquals("{\"xml\":\"<a class=\\\"bold\\\"><b>text</b></a>\",\"next\":1}", result);
+    }
+
+    @Test
+    public void escapedBackslashIsKept() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("path=\"C:\\\\temp dir\" next=1");
+        assertEquals("{\"path\":\"C:\\\\temp dir\",\"next\":1}", result);
+    }
+
+    @Test
+    public void unescapedQuoteEndsValue() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("xml=\"<a class=\"bold\">text</a>\" next=1");
+        assertEquals("{\"xml\":\"<a class=\",\"next\":1}", result);
+    }
+
+    @Test
+    public void xmlAttributesDoNotBecomeKeys() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("a=b <tag attr=\"value\">text</tag>");
+        assertEquals("{\"a\":\"b\"}", result);
+    }
+
+    @Test
+    public void escapesSurviveReadingTheJsonBack() {
+        final String json = sendEventWithFormatedMessageAndReturnResultJson("xml=\"<a class=\\\"bold\\\">text</a>\"");
+        final Map<String, Object> read = objectMapper.readValue(json, new TypeReference<>() {});
+        assertEquals("<a class=\"bold\">text</a>", read.get("xml"));
+    }
+
+    @Test
+    public void unterminatedQuoteDoesNotKeepTags() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("xml=\"<a>text next=1");
+        assertEquals("{\"next\":1}", result);
+    }
+
+    @Test
+    public void spaceBeforeEqualsDoesNotProtectTags() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("note =\"<tag attr=value>\" next=1");
+        assertEquals("{\"next\":1}", result);
+    }
+
+    @Test
+    public void invalidKeyDoesNotProtectTags() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("1bad=\"<tag attr=value>\" next=1");
+        assertEquals("{\"next\":1}", result);
+    }
+
+    @Test
+    public void newlineInsideQuotedValueDoesNotLeakTags() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("a=\"first\\\n<tag attr=value>second\" next=1");
+        assertEquals("{\"a\":\"first\\\\\\n<tag attr=value>second\",\"next\":1}", result);
+    }
+
+    @Test
+    public void nullMessage() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson(null);
         assertEquals("{}", result);
     }
 
     @Test
-    public void nullValueMessage() throws IOException {
+    public void nullValueMessage() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("a=null");
         assertEquals("{\"a\":null}", result);
     }
 
     @Test
-    public void emptyValueMessage() throws IOException {
+    public void upperCaseNullValueMessage() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("a=NULL");
+        assertEquals("{\"a\":null}", result);
+    }
+
+    @Test
+    public void booleanValues() {
+        assertEquals("{\"foo\":true}", sendEventWithFormatedMessageAndReturnResultJson("foo=true"));
+        assertEquals("{\"foo\":false}", sendEventWithFormatedMessageAndReturnResultJson("foo=false"));
+        assertEquals("{\"foo\":true}", sendEventWithFormatedMessageAndReturnResultJson("foo=TRUE"));
+    }
+
+    @Test
+    public void negativeIntValue() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=-7");
+        assertEquals("{\"foo\":-7}", result);
+    }
+
+    @Test
+    public void emptyValueMessage() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("a=");
         assertEquals("{}", result);
     }
 
     @Test
-    public void emptyMessage() throws IOException {
+    public void emptyMessage() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("");
         assertEquals("{}", result);
     }
 
     @Test
-    public void emptyMessage2() throws IOException {
+    public void emptyMessage2() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("    ");
         assertEquals("{}", result);
     }
 
     @Test
-    public void emptyResultWhenSpaces() throws IOException {
+    public void emptyResultWhenSpaces() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson(" a = b ");
         assertEquals("{}", result);
     }
 
     @Test
-    public void emptyResultWhenSpaces2() throws IOException {
+    public void emptyResultWhenSpaces2() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo =bar hello= world");
         assertEquals("{}", result);
     }
 
     @Test
-    public void s3VersionId() throws IOException {
+    public void s3VersionId() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("s3VersionId=\"1_9XcT207HmV5yyEExF7GhsaSzUoeNFY\"");
         assertEquals("{\"s3VersionId\":\"1_9XcT207HmV5yyEExF7GhsaSzUoeNFY\"}", result);
     }
 
-    private String sendEventWithFormatedMessageAndReturnResultJson(final String formattedMessage) throws IOException {
+    @Test
+    public void quotesProtectSpacesInValue() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("event=x detail=\"foo bar baz\" next=1");
+        assertEquals("{\"event\":\"x\",\"detail\":\"foo bar baz\",\"next\":1}", result);
+    }
+
+    @Test
+    public void quotesProtectEqualsInValue() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("event=x detail=\"a=b\" next=1");
+        assertEquals("{\"event\":\"x\",\"detail\":\"a=b\",\"next\":1}", result);
+    }
+
+    @Test
+    public void unquotedValueIsCutAtSpace() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("event=x detail=foo bar baz next=1");
+        assertEquals("{\"event\":\"x\",\"detail\":\"foo\",\"next\":1}", result);
+    }
+
+    @Test
+    public void quotedValueWithoutSpacesIsKept() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("event=x detail=\"foo_bar_baz\" next=1");
+        assertEquals("{\"event\":\"x\",\"detail\":\"foo_bar_baz\",\"next\":1}", result);
+    }
+
+    private String sendEventWithFormatedMessageAndReturnResultJson(final String formattedMessage) {
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
         final JsonGenerator jsonGenerator = createJsonGenerator(out);
         jsonGenerator.writeStartObject();
@@ -247,7 +484,7 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
         jsonGenerator.writeEndObject();
         jsonGenerator.close();
         final String result = out.toString(StandardCharsets.UTF_8);
-        log.info("Result: {}", result);
+        log.info("formattedMessage: {}\tResult: {}", formattedMessage, result);
         return result;
     }
 
