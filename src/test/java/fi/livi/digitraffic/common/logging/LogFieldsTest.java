@@ -116,7 +116,17 @@ class LogFieldsTest {
     @Test
     void givenADurationWhenConvertedThenTheValueIsInSeconds() {
         assertEquals(1.4, LogFields.durationSeconds(Duration.ofMillis(1400)));
-        assertEquals(0.0, LogFields.durationSeconds(null));
+        assertNull(LogFields.durationSeconds(null));
+    }
+
+    @Test
+    void givenAnAbsentDurationWhenRenderedThenTheFieldIsAJsonNull() {
+        // A null Duration must not be mistaken for a real zero-second measurement
+        final Map<String, Object> event = new LinkedHashMap<>();
+        event.put("duration", LogFields.durationSeconds(null));
+
+        assertEquals("duration=NULL", LogFields.of(event));
+        assertNull(toJson(LogFields.of(event)).get("duration"));
     }
 
     @Test

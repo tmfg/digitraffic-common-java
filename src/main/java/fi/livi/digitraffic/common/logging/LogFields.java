@@ -53,14 +53,23 @@ public final class LogFields {
         return millis / 1000.0;
     }
 
-    /** As {@link #durationSeconds(long)}, for a {@link Duration}. */
-    public static double durationSeconds(final Duration duration) {
-        return duration == null ? 0.0 : durationSeconds(duration.toMillis());
+    /**
+     * As {@link #durationSeconds(long)}, for a {@link Duration} that may be absent. Returns {@code null}
+     * for a {@code null} duration, so putting the result straight into the event map renders the field as
+     * {@code NULL} - the same way {@link #of(Map)} treats every other absent value - instead of silently
+     * reporting a real zero-second measurement.
+     */
+    public static Double durationSeconds(final Duration duration) {
+        return duration == null ? null : durationSeconds(duration.toMillis());
     }
 
     /**
      * Quotes a value that may contain spaces, so the provider keeps all of it instead of ending the value at
      * the first space. Newlines become spaces and quotes are escaped. A blank value becomes {@code NULL}.
+     *
+     * <p>Leading and trailing whitespace is also trimmed, since the values this is meant for - error
+     * messages, validation details - carry no meaning in that whitespace. If a caller needs it preserved,
+     * quote and escape the value itself instead of calling this method.
      */
     public static String quoted(final String value) {
         if (value == null || value.isBlank()) {
