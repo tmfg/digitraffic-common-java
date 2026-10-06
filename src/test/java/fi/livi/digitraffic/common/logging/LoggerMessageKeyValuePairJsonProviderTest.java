@@ -269,6 +269,33 @@ public class LoggerMessageKeyValuePairJsonProviderTest {
     }
 
     @Test
+    public void exponentValueIsDouble() {
+        // Double.toString switches to this notation at 10^7, so a long duration must still be a number
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("duration=1.0E7");
+        assertEquals("{\"duration\":1.0E7}", result);
+    }
+
+    @Test
+    public void negativeExponentValueIsDouble() {
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=3.0E-4");
+        assertEquals("{\"foo\":3.0E-4}", result);
+    }
+
+    @Test
+    public void integralExponentValueStaysLong() {
+        // No decimal point, so there is no fraction to preserve
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=1E5");
+        assertEquals("{\"foo\":100000}", result);
+    }
+
+    @Test
+    public void lowercaseExponentValueStaysString() {
+        // NumberFormat only reads an upper case exponent, and would otherwise turn "2e3" into 2
+        final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2e3");
+        assertEquals("{\"foo\":\"2e3\"}", result);
+    }
+
+    @Test
     public void isoDateTimeOffset() {
         final String result = sendEventWithFormatedMessageAndReturnResultJson("foo=2020-05-01T12:00+02:00");
         assertEquals("{\"foo\":\"2020-05-01T10:00:00Z\"}", result);
