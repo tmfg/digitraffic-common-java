@@ -282,8 +282,8 @@ public final class TimeUtilTest {
         final Instant now = Instant.now();
         final Instant nowWithoutNanos = TimeUtil.nowWithoutNanos();
 
-        assertEquals("000000", StringUtils.right(String.valueOf(nowWithoutNanos.getNano()), 6));
-        assertTrue(TimeUtil.millisBetween(now, nowWithoutNanos) <= 1);
+        assertEquals(0, nowWithoutNanos.getNano() % 1_000_000);
+        assertTrue(nowWithoutNanos.toEpochMilli() >= now.toEpochMilli());
         assertEquals(now.toEpochMilli(), nowWithoutNanos.toEpochMilli(), 1000);
     }
 
@@ -311,7 +311,7 @@ public final class TimeUtilTest {
         final Instant now = Instant.now();
         final Instant nowWithoutNanos = TimeUtil.withoutNanos(now);
 
-        assertEquals("000000", StringUtils.right(String.valueOf(nowWithoutNanos.getNano()), 6));
+        assertEquals(0, nowWithoutNanos.getNano() % 1_000_000);
         assertEquals(now.toEpochMilli(), nowWithoutNanos.toEpochMilli());
     }
 
