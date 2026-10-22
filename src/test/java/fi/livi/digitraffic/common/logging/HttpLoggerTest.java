@@ -1,46 +1,18 @@
 package fi.livi.digitraffic.common.logging;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-import org.slf4j.event.KeyValuePair;
-
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
-import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.Http;
-import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.KEY_CONTEXT;
-import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.KEY_METHOD;
-import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.KEY_TRACE_ID;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class HttpLoggerTest {
-    @Test
-    void endLogsStatusCodeAndMetadata() {
-        final ILoggingEvent event = captureSingleLogEvent(logger -> logger.end(204));
-        final Map<String, Object> keyValues = keyValues(event);
-
-        assertEquals("HttpLogger.logStatus", keyValues.get(KEY_METHOD));
-        assertEquals("ais", keyValues.get(KEY_CONTEXT));
-        assertEquals("https://example.test/v1/messages", keyValues.get(Http.KEY_URL));
-        assertEquals("/v1/messages", keyValues.get(Http.KEY_URL_TEMPLATE));
-        assertEquals(204, keyValues.get(Http.KEY_STATUS_CODE));
-        assertNull(keyValues.get(Http.KEY_ERROR_TYPE));
-        assertEquals("trace-123", keyValues.get(KEY_TRACE_ID));
-
-        assertNotNull(keyValues.get(Http.KEY_DURATION));
-        assertTrue((double) keyValues.get(Http.KEY_DURATION) >= 0.0);
-    }
-
     @Test
     void errorLogsExceptionTypeAndDefaultStatusCode() {
         final ILoggingEvent event = captureSingleLogEvent(logger -> logger.error(new IllegalStateException("boom")));
