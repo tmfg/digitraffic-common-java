@@ -14,6 +14,22 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HttpLoggerTest {
     @Test
+    void urlTemplateIsLoggedWithoutSchemeOrHost() {
+        final ILoggingEvent event = captureSingleLogEvent("ais", "https://example.test/v1/messages/{id}", logger -> logger.error(new IllegalStateException("boom")));
+        final Map<String, Object> keyValues = keyValues(event);
+
+        assertEquals("/v1/messages/{id}", keyValues.get(Http.KEY_URL_TEMPLATE));
+    }
+
+    @Test
+    void contextIsLoggedInSnakeCase() {
+        final ILoggingEvent event = captureSingleLogEvent("Ais PortForward", logger -> logger.error(new IllegalStateException("boom")));
+        final Map<String, Object> keyValues = keyValues(event);
+
+        assertEquals("ais_port_forward", keyValues.get(Logging.KEY_CONTEXT));
+    }
+
+    @Test
     void errorLogsExceptionTypeAndDefaultStatusCode() {
         final ILoggingEvent event = captureSingleLogEvent(logger -> logger.error(new IllegalStateException("boom")));
         final Map<String, Object> keyValues = keyValues(event);
@@ -22,7 +38,16 @@ class HttpLoggerTest {
         assertEquals(-1, keyValues.get(Http.KEY_STATUS_CODE));
     }
 
-    private static ILoggingEvent captureSingleLogEvent(final java.util.function.Consumer<HttpLogger> action) {
+    private static ILoggingEvent captureSingleLogEvent(
+        final String context,
+        final java.util.function.Consumer<HttpLogger> action) {
+        return captureSingleLogEvent(context, "/v1/messages", action);
+    }
+
+    private static ILoggingEvent captureSingleLogEvent(
+        final String context,
+        final String urlTemplate,
+        final java.util.function.Consumer<HttpLogger> action) {
         final Logger log = (Logger) LoggerFactory.getLogger(HttpLogger.class);
         final ListAppender<ILoggingEvent> appender = new ListAppender<>();
         appender.setContext(log.getLoggerContext());
@@ -31,10 +56,10 @@ class HttpLoggerTest {
 
         try {
             final HttpLogger logger = new HttpLogger(new HttpLogger.Parameters(
-                "ais",
+                context,
                 "https://example.test/v1/messages",
                 "trace-123",
-                "/v1/messages"));
+                urlTemplate));
             action.accept(logger);
 
             assertEquals(1, appender.list.size());
@@ -43,6 +68,10 @@ class HttpLoggerTest {
             log.detachAppender(appender);
             appender.stop();
         }
+    }
+
+    private static ILoggingEvent captureSingleLogEvent(final java.util.function.Consumer<HttpLogger> action) {
+        return captureSingleLogEvent("ais", action);
     }
 
     private static Map<String, Object> keyValues(final ILoggingEvent event) {

@@ -40,10 +40,10 @@ public class HttpLogger {
      * @throws NullPointerException if {@code context} or {@code url} is {@code null}
      */
     public HttpLogger(final Parameters parameters) {
-        this.context = Objects.requireNonNull(parameters.context(), "context must not be null");
+        this.context = toSnakeCase(Objects.requireNonNull(parameters.context(), "context must not be null"));
         this.url = Objects.requireNonNull(parameters.url(), "url must not be null");
         this.traceId = parameters.traceId();
-        this.urlTemplate = parameters.urlTemplate();
+        this.urlTemplate = normalizeUrlTemplate(parameters.urlTemplate());
         this.stopWatch.start();
     }
 
@@ -105,8 +105,8 @@ public class HttpLogger {
 
         LOGGER.atInfo()
             .addKeyValue(KEY_METHOD, "HttpLogger.logStatus")
-            .addKeyValue(KEY_CONTEXT, context)
             .addKeyValue(KEY_TRACE_ID, traceId)
+            .addKeyValue(Logging.KEY_CONTEXT, context)
             .addKeyValue(Http.KEY_URL, url)
             .addKeyValue(Http.KEY_URL_TEMPLATE, urlTemplate)
             .addKeyValue(Http.KEY_ERROR_TYPE, errorType)
@@ -114,6 +114,24 @@ public class HttpLogger {
             .addKeyValue(Http.KEY_DURATION, (duration / 1000.0))
             .addKeyValue(Http.KEY_BODY_SIZE, this.contentLength)
             .log();
+    }
+
+    private static String toSnakeCase(final String value) {
+        return value
+            .replaceAll("([a-z0-9])([A-Z])", "$1_$2")
+            .replaceAll("[^A-Za-z0-9]+", "_")
+            .replaceAll("_+", "_")
+            .replaceAll("^_|_$", "")
+            .toLowerCase();
+    }
+
+    private static String normalizeUrlTemplate(final String value) {
+        if(value == null) {
+            return null;
+        }
+
+        final String normalized = value.replaceFirst("^(?:[A-Za-z][A-Za-z0-9+.-]*:)?//[^/]+", "");
+        return normalized.isEmpty() ? "/" : normalized;
     }
 
     /**

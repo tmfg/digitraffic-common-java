@@ -2,8 +2,11 @@ package fi.livi.digitraffic.common.logging;
 
 public class OpenTelemetryLogging {
     public static final String KEY_METHOD = "method";
-    public static final String KEY_CONTEXT = "context";
     public static final String KEY_TRACE_ID = "trace_id";
+
+    public static class Logging {
+        public static final String KEY_CONTEXT = "context";
+    }
 
     public static class Http {
         public static final String KEY_URL = "request.url.full";
