@@ -10,7 +10,7 @@ import reactor.core.publisher.SignalType;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.*;
+import static fi.livi.digitraffic.common.logging.otel.OpenTelemetryLogging.*;
 
 /**
  * Logs one HTTP operation as a structured OpenTelemetry-style event.
@@ -106,7 +106,7 @@ public class HttpLogger {
         LOGGER.atInfo()
             .addKeyValue(KEY_METHOD, "HttpLogger.logStatus")
             .addKeyValue(KEY_TRACE_ID, traceId)
-            .addKeyValue(Logging.KEY_CONTEXT, context)
+            .addKeyValue(KEY_CONTEXT, context)
             .addKeyValue(Http.KEY_URL, url)
             .addKeyValue(Http.KEY_URL_TEMPLATE, urlTemplate)
             .addKeyValue(Http.KEY_ERROR_TYPE, errorType)
