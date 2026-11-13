@@ -13,7 +13,7 @@ public class OpenTelemetryLogging {
     }
 
     public static class DbMaintenance {
-        public static final String KEY_CLEANUP = "maintenance.db.cleanup";
+        public static final String KEY_CLEANUP = "maintenance.db.cleanup.enabled";
         public static final String KEY_TABLENAME = "maintenance.db.table.name";
         public static final String KEY_DELETED_COUNT = "maintenance.db.cleanup.deleted.count";
         public static final String KEY_BATCH_SIZE = "maintenance.db.cleanup.batch.size";
