@@ -1,16 +1,13 @@
 package fi.livi.digitraffic.common.logging;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static fi.livi.digitraffic.common.logging.OpenTelemetryLogging.*;
+import static fi.livi.digitraffic.common.logging.otel.OpenTelemetryLogging.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static fi.livi.digitraffic.common.logging.LoggingTestUtils.keyValues;
 
 class HttpLoggerTest {
     @Test
@@ -48,35 +45,17 @@ class HttpLoggerTest {
         final String context,
         final String urlTemplate,
         final java.util.function.Consumer<HttpLogger> action) {
-        final Logger log = (Logger) LoggerFactory.getLogger(HttpLogger.class);
-        final ListAppender<ILoggingEvent> appender = new ListAppender<>();
-        appender.setContext(log.getLoggerContext());
-        appender.start();
-        log.addAppender(appender);
-
-        try {
+        return LoggingTestUtils.captureSingleLogEvent(HttpLogger.class, () -> {
             final HttpLogger logger = new HttpLogger(new HttpLogger.Parameters(
                 context,
                 "https://example.test/v1/messages",
                 "trace-123",
                 urlTemplate));
             action.accept(logger);
-
-            assertEquals(1, appender.list.size());
-            return appender.list.getFirst();
-        } finally {
-            log.detachAppender(appender);
-            appender.stop();
-        }
+        });
     }
 
     private static ILoggingEvent captureSingleLogEvent(final java.util.function.Consumer<HttpLogger> action) {
         return captureSingleLogEvent("ais", action);
     }
-
-    private static Map<String, Object> keyValues(final ILoggingEvent event) {
-        return event.getKeyValuePairs().stream()
-            .collect(LinkedHashMap::new, (map, pair) -> map.put(pair.key, pair.value), Map::putAll);
-    }
 }
-
