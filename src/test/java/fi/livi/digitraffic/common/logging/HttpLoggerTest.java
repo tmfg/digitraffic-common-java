@@ -1,7 +1,9 @@
 package fi.livi.digitraffic.common.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import fi.livi.digitraffic.common.logging.otel.OpenTelemetryLogging;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.health.autoconfigure.actuate.endpoint.HealthEndpointProperties;
 
 import java.util.Map;
 
@@ -23,7 +25,7 @@ class HttpLoggerTest {
         final ILoggingEvent event = captureSingleLogEvent("Ais PortForward", logger -> logger.error(new IllegalStateException("boom")));
         final Map<String, Object> keyValues = keyValues(event);
 
-        assertEquals("ais_port_forward", keyValues.get(Logging.KEY_CONTEXT));
+        assertEquals("ais_port_forward", keyValues.get(OpenTelemetryLogging.KEY_CONTEXT));
     }
 
     @Test
