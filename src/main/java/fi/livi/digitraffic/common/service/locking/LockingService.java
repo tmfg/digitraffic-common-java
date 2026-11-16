@@ -3,7 +3,9 @@ package fi.livi.digitraffic.common.service.locking;
 import java.util.Optional;
 import java.util.UUID;
 
+import fi.livi.digitraffic.common.logging.MaintenanceLogger;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -17,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import fi.livi.digitraffic.common.dao.LockingDao;
 import fi.livi.digitraffic.common.util.StringUtil;
+
+import static fi.livi.digitraffic.common.logging.LogFields.durationSeconds;
 
 @ConditionalOnNotWebApplication
 @Service
@@ -130,11 +134,16 @@ public class LockingService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected void clearExpiredLocks(final int secondsSinceExpired) {
+        final StopWatch stopWatch = StopWatch.createStarted();
+
         try {
             // Delete locks that have expired over hour ago
-            lockingDao.clearExpiredLocks(secondsSinceExpired);
+            final int deletedRows = lockingDao.clearExpiredLocks(secondsSinceExpired);
+
+            MaintenanceLogger.logCleanup("locking_table", deletedRows, -1, durationSeconds(stopWatch.getTime()));
         } catch (final Exception e) {
-            log.error("method=clearExpiredLocks Failed", e);
+            MaintenanceLogger.logError("locking_table", durationSeconds(stopWatch.getTime()), e);
         }
+
     }
 }

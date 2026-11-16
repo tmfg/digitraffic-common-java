@@ -97,8 +97,8 @@ public class LockingDao {
     }
 
     @Transactional
-    public void clearExpiredLocks(final int secondsSinceExpired) {
+    public int clearExpiredLocks(final int secondsSinceExpired) {
         final MapSqlParameterSource params = new MapSqlParameterSource(PARAMETER_EXPIRATION_SECONDS, secondsSinceExpired);
-        jdbcTemplate.update(DELETE_EXPIRED_LOCK, params);
+        return jdbcTemplate.update(DELETE_EXPIRED_LOCK, params);
     }
 }
